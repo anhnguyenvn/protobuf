@@ -34,6 +34,7 @@ using Google.Protobuf.Compatibility;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using static Google.Protobuf.Reflection.ReflectionUtil;
 
 namespace Google.Protobuf.Reflection
 {
@@ -125,8 +126,11 @@ namespace Google.Protobuf.Reflection
         /// the type that declares the method, and the second argument to the first parameter type of the method.
         /// </summary>
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Type parameter members are preserved with DynamicallyAccessedMembers on GeneratedClrTypeInfo.ctor clrType parameter.")]
-        internal static IExtensionReflectionHelper CreateExtensionHelper(Extension extension) =>
-            (IExtensionReflectionHelper)Activator.CreateInstance(typeof(ExtensionReflectionHelper<,>).MakeGenericType(extension.TargetType, extension.GetType().GenericTypeArguments[1]), extension);
+        internal static IExtensionReflectionHelper CreateExtensionHelper(Extension extension)
+        {
+            //(IExtensionReflectionHelper) Activator.CreateInstance(typeof(ExtensionReflectionHelper<,>).MakeGenericType(extension.TargetType, extension.GetType().GenericTypeArguments[1]), extension);
+            return new ExtensionReflectionHelper(extension);
+        }
 
         /// <summary>
         /// Creates a reflection helper for the given type arguments. Currently these are created on demand
@@ -209,8 +213,10 @@ namespace Google.Protobuf.Reflection
             }
         }
 
-        private class ExtensionReflectionHelper<T1, T3> : IExtensionReflectionHelper
-            where T1 : IExtendableMessage<T1>
+        //private class ExtensionReflectionHelper<T1, T3> : IExtensionReflectionHelper
+        //    where T1 : IExtendableMessage<T1>
+
+        public class ExtensionReflectionHelper
         {
             private readonly Extension extension;
 
@@ -219,7 +225,7 @@ namespace Google.Protobuf.Reflection
                 this.extension = extension;
             }
 
-            public object GetExtension(IMessage message)
+            public object GetExtension<T1, T3>(IMessage message) where T1 : IExtendableMessage<T1>
             {
                 if (message is not T1 extensionMessage)
                 {
@@ -240,7 +246,7 @@ namespace Google.Protobuf.Reflection
                 }
             }
 
-            public bool HasExtension(IMessage message)
+            public bool HasExtension<T1, T3>(IMessage message) where T1 : IExtendableMessage<T1>
             {
                 if (message is not T1 extensionMessage)
                 {
@@ -261,7 +267,7 @@ namespace Google.Protobuf.Reflection
                 }
             }
 
-            public void SetExtension(IMessage message, object value)
+            public void SetExtension<T1, T3>(IMessage message, object value) where T1 : IExtendableMessage<T1>
             {
                 if (message is not T1 extensionMessage)
                 {
@@ -270,7 +276,7 @@ namespace Google.Protobuf.Reflection
 
                 if (extension is Extension<T1, T3> ext13)
                 {
-                    extensionMessage.SetExtension(ext13, (T3)value);
+                    extensionMessage.SetExtension(ext13, (T3) value);
                 }
                 else if (extension is RepeatedExtension<T1, T3>)
                 {
@@ -282,7 +288,7 @@ namespace Google.Protobuf.Reflection
                 }
             }
 
-            public void ClearExtension(IMessage message)
+            public void ClearExtension<T1, T3>(IMessage message) where T1 : IExtendableMessage<T1>
             {
                 if (message is not T1 extensionMessage)
                 {

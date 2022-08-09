@@ -30,6 +30,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Reflection;
+
 namespace Google.Protobuf.Reflection
 {
     internal sealed class ExtensionAccessor : IFieldAccessor
@@ -48,22 +51,44 @@ namespace Google.Protobuf.Reflection
 
         public void Clear(IMessage message)
         {
-            helper.ClearExtension(message);
+            //helper.ClearExtension(message);
+            var T1 = extension.TargetType;
+            var T3 = extension.GetType().GenericTypeArguments[1];
+            MethodInfo method = helper.GetType().GetTypeInfo().GetDeclaredMethod(nameof(ReflectionUtil.ExtensionReflectionHelper.ClearExtension));
+            MethodInfo generic = method.MakeGenericMethod(T1, T3);
+            generic.Invoke(helper, new object[] { message });
         }
 
         public bool HasValue(IMessage message)
         {
-            return helper.HasExtension(message);
+            //return helper.HasExtension(message);
+
+            var T1 = extension.TargetType;
+            var T3 = extension.GetType().GenericTypeArguments[1];
+            MethodInfo method = helper.GetType().GetTypeInfo().GetDeclaredMethod(nameof(ReflectionUtil.ExtensionReflectionHelper.HasExtension));
+            MethodInfo generic = method.MakeGenericMethod(T1, T3);
+            return (bool) generic.Invoke(helper, new object[] { message });
         }
 
         public object GetValue(IMessage message)
         {
-            return helper.GetExtension(message);
+            //return helper.GetExtension(message
+            var T1 = extension.TargetType;
+            var T3 = extension.GetType().GenericTypeArguments[1];
+            MethodInfo method = helper.GetType().GetTypeInfo().GetDeclaredMethod(nameof(ReflectionUtil.ExtensionReflectionHelper.GetExtension));
+            MethodInfo generic = method.MakeGenericMethod(T1, T3);
+            return generic.Invoke(helper, new object[] { message });
         }
 
         public void SetValue(IMessage message, object value)
         {
-            helper.SetExtension(message, value);
+            //helper.SetExtension(message, value);
+
+            var T1 = extension.TargetType;
+            var T3 = extension.GetType().GenericTypeArguments[1];
+            MethodInfo method = helper.GetType().GetTypeInfo().GetDeclaredMethod(nameof(ReflectionUtil.ExtensionReflectionHelper.SetExtension));
+            MethodInfo generic = method.MakeGenericMethod(T1, T3);
+            generic.Invoke(helper, new object[] { message });
         }
     }
 }
